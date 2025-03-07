@@ -1,0 +1,54 @@
+package operation
+
+import (
+	"context"
+	"fmt"
+	"github.com/Konstanta100/BrokerCalculator/internal/config"
+	"github.com/russianinvestments/invest-api-go-sdk/investgo"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+	"log"
+	"net/http"
+	"time"
+)
+
+type Service struct {
+	Client *investgo.Client
+}
+
+func NewService(conf config.Config) (Service, error) {
+	service := Service{}
+
+	client, err := investgo.NewClient(context.Background(), conf.BrokerConfig, initLogger())
+	if err != nil {
+		return service, fmt.Errorf("error creating investgo client: %w", err)
+	}
+
+	service.Client = client
+
+	return service, nil
+}
+
+func initLogger() *zap.SugaredLogger {
+	zapConfig := zap.NewDevelopmentConfig()
+	zapConfig.EncoderConfig.EncodeTime = zapcore.TimeEncoderOfLayout(time.DateTime)
+	zapConfig.EncoderConfig.TimeKey = "time"
+	l, err := zapConfig.Build()
+	logger := l.Sugar()
+
+	defer func() {
+		err = logger.Sync()
+		if err != nil {
+			log.Printf(err.Error())
+		}
+	}()
+
+	if err != nil {
+		log.Fatalf("logger creating error %v", err)
+	}
+	return logger
+}
+
+func (s *Service) CalculateCommission(writer http.ResponseWriter, request *http.Request) {
+	fmt.Println("[INFO request]", request.Host, request.URL.Path, request.Method)
+}

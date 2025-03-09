@@ -1,14 +1,12 @@
-package operation
+package broker
 
 import (
 	"context"
 	"fmt"
-	"github.com/Konstanta100/BrokerCalculator/internal/config"
 	"github.com/russianinvestments/invest-api-go-sdk/investgo"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"log"
-	"net/http"
 	"time"
 )
 
@@ -16,10 +14,10 @@ type Service struct {
 	Client *investgo.Client
 }
 
-func NewService(conf config.Config) (Service, error) {
+func New(conf investgo.Config) (Service, error) {
 	service := Service{}
 
-	client, err := investgo.NewClient(context.Background(), conf.BrokerConfig, initLogger())
+	client, err := investgo.NewClient(context.Background(), conf, initLogger())
 	if err != nil {
 		return service, fmt.Errorf("error creating investgo client: %w", err)
 	}
@@ -47,8 +45,4 @@ func initLogger() *zap.SugaredLogger {
 		log.Fatalf("logger creating error %v", err)
 	}
 	return logger
-}
-
-func (s *Service) CalculateCommission(writer http.ResponseWriter, request *http.Request) {
-	fmt.Println("[INFO request]", request.Host, request.URL.Path, request.Method)
 }

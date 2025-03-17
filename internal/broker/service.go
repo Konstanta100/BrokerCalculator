@@ -3,6 +3,7 @@ package broker
 import (
 	"context"
 	"fmt"
+	"github.com/Konstanta100/BrokerCalculator/internal/operation"
 	"github.com/russianinvestments/invest-api-go-sdk/investgo"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -25,6 +26,13 @@ func New(conf investgo.Config) (Service, error) {
 	service.Client = client
 
 	return service, nil
+}
+
+func (s *Service) NewOperationService() *operation.Service {
+	return &operation.Service{
+		AccountId:  s.Client.Config.AccountId,
+		GRPCClient: s.Client.NewOperationsServiceClient(),
+	}
 }
 
 func initLogger() *zap.SugaredLogger {

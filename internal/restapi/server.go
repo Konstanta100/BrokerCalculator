@@ -11,6 +11,7 @@ type Server struct {
 	conf             config.Config
 	brokerService    broker.Service
 	OperationHandler rest.OperationHandler
+	AccountHandler   rest.AccountHandler
 }
 
 func New(conf config.Config) (*Server, error) {
@@ -22,8 +23,10 @@ func New(conf config.Config) (*Server, error) {
 	}
 
 	operationHandler := rest.OperationHandler{OperationService: brokerService.NewOperationService()}
+	accountHandler := rest.AccountHandler{AccountService: brokerService.NewAccountService()}
 
 	server.OperationHandler = operationHandler
+	server.AccountHandler = accountHandler
 
 	return &server, err
 }

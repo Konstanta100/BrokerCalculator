@@ -12,9 +12,13 @@ type Service struct {
 	GRPCClient *investgo.OperationsServiceClient
 }
 
-func (s *Service) CalculateCommission(dateTimeFrom, dateTimeTo time.Time) (*CalculateCommission, error) {
+func (s *Service) CalculateCommission(accountId string, dateTimeFrom, dateTimeTo time.Time) (*CalculateCommission, error) {
+	if accountId == "" {
+		accountId = s.AccountId
+	}
+
 	cursorRequest := investgo.GetOperationsByCursorRequest{
-		AccountId:          s.AccountId,
+		AccountId:          accountId,
 		From:               dateTimeFrom,
 		To:                 dateTimeTo,
 		State:              pb.OperationState_OPERATION_STATE_EXECUTED,
@@ -73,15 +77,18 @@ func (s *Service) CalculateCommission(dateTimeFrom, dateTimeTo time.Time) (*Calc
 	return &calculateCommission, nil
 }
 
-func (s *Service) GetOperation(figi string, dateTimeFrom, dateTimeTo time.Time) (*Operations, error) {
-	return s.findOperations(figi, dateTimeFrom, dateTimeTo)
+func (s *Service) GetOperation(accountId, figi string, dateTimeFrom, dateTimeTo time.Time) (*Operations, error) {
+	if accountId == "" {
+		accountId = s.AccountId
+	}
+	return s.findOperations(accountId, figi, dateTimeFrom, dateTimeTo)
 }
 
-func (s *Service) findOperations(figi string, dateTimeFrom, dateTimeTo time.Time) (*Operations, error) {
+func (s *Service) findOperations(accountId, figi string, dateTimeFrom, dateTimeTo time.Time) (*Operations, error) {
 	var operations Operations
 	operationsResp, err := s.GRPCClient.GetOperations(&investgo.GetOperationsRequest{
 		Figi:      figi,
-		AccountId: s.AccountId,
+		AccountId: accountId,
 		State:     pb.OperationState_OPERATION_STATE_EXECUTED,
 		From:      dateTimeFrom,
 		To:        dateTimeTo,

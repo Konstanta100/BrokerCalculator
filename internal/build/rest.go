@@ -62,8 +62,9 @@ func (b *Builder) registerHandlers() error {
 		return fmt.Errorf("could not create rest api server: %w", err)
 	}
 
-	apiRoute.HandleFunc("/operations/commission", server.OperationHandler.CalculateCommission).Methods("GET")
-	apiRoute.HandleFunc("/operations", server.OperationHandler.GetOperation).Methods("GET")
+	operationHandler := server.OperationHandler
+	apiRoute.HandleFunc("/operations/commission", operationHandler.CalculateCommission).Methods(http.MethodPost)
+	apiRoute.HandleFunc("/operations", operationHandler.GetOperations).Methods(http.MethodPost)
 
 	return nil
 }

@@ -2,16 +2,15 @@ package restapi
 
 import (
 	"fmt"
+	"github.com/Konstanta100/BrokerCalculator/internal/broker"
 	"github.com/Konstanta100/BrokerCalculator/internal/config"
 	"github.com/Konstanta100/BrokerCalculator/internal/handler/rest"
-	"github.com/Konstanta100/BrokerCalculator/internal/service/broker"
-	"github.com/Konstanta100/BrokerCalculator/internal/service/operation"
 )
 
 type Server struct {
 	conf             config.Config
 	brokerService    broker.Service
-	OperationHandler rest.Handler
+	OperationHandler rest.OperationHandler
 }
 
 func New(conf config.Config) (*Server, error) {
@@ -22,9 +21,7 @@ func New(conf config.Config) (*Server, error) {
 		return nil, fmt.Errorf("could not create broker service: %w", err)
 	}
 
-	operationHandler := rest.Handler{
-		OperationService: operation.NewOperationService(brokerService.Client.NewOperationsServiceClient()),
-	}
+	operationHandler := rest.OperationHandler{OperationService: brokerService.NewOperationService()}
 
 	server.OperationHandler = operationHandler
 

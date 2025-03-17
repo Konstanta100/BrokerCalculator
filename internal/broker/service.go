@@ -3,6 +3,7 @@ package broker
 import (
 	"context"
 	"fmt"
+	"github.com/Konstanta100/BrokerCalculator/internal/account"
 	"github.com/Konstanta100/BrokerCalculator/internal/operation"
 	"github.com/russianinvestments/invest-api-go-sdk/investgo"
 	"go.uber.org/zap"
@@ -32,6 +33,13 @@ func (s *Service) NewOperationService() *operation.Service {
 	return &operation.Service{
 		AccountId:  s.Client.Config.AccountId,
 		GRPCClient: s.Client.NewOperationsServiceClient(),
+	}
+}
+
+func (s *Service) NewAccountService() *account.Service {
+	return &account.Service{
+		AccountId:  s.Client.Config.AccountId,
+		GRPCClient: s.Client.NewUsersServiceClient(),
 	}
 }
 

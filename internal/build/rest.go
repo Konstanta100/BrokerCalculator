@@ -63,8 +63,10 @@ func (b *Builder) registerHandlers() error {
 	}
 
 	operationHandler := server.OperationHandler
+	accountHandler := server.AccountHandler
 	apiRoute.HandleFunc("/operations/commission", operationHandler.CalculateCommission).Methods(http.MethodPost)
 	apiRoute.HandleFunc("/operations", operationHandler.GetOperations).Methods(http.MethodPost)
+	apiRoute.HandleFunc("/accounts", accountHandler.GetAccounts).Methods(http.MethodGet)
 
 	return nil
 }

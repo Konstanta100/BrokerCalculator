@@ -12,11 +12,7 @@ type OperationsRequest struct {
 	DateFrom   string `json:"dateFrom"`
 	DateTimeTo string `json:"dateTo,omitempty"`
 	Figi       string `json:"figi,omitempty"`
-}
-
-type ErrorResponse struct {
-	Error   string `json:"error"`
-	Message string `json:"message,omitempty"`
+	AccountId  string `json:"accountId,omitempty"`
 }
 
 type OperationsResponse struct {
@@ -27,7 +23,7 @@ type OperationHandler struct {
 	OperationService *operation.Service
 }
 
-func (s *OperationHandler) CalculateCommission(w http.ResponseWriter, r *http.Request) {
+func (h *OperationHandler) CalculateCommission(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
 	var operationRequest OperationsRequest
@@ -59,7 +55,7 @@ func (s *OperationHandler) CalculateCommission(w http.ResponseWriter, r *http.Re
 		}
 	}
 
-	calculateCommission, err := s.OperationService.CalculateCommission(dateFrom, dateTo)
+	calculateCommission, err := h.OperationService.CalculateCommission(operationRequest.AccountId, dateFrom, dateTo)
 	if err != nil {
 		sendErrorResponse(w, "Error getting operations", http.StatusInternalServerError)
 	}
@@ -71,7 +67,7 @@ func (s *OperationHandler) CalculateCommission(w http.ResponseWriter, r *http.Re
 		json.NewEncoder(w).Encode(err)
 	}
 }
-func (s *OperationHandler) GetOperations(w http.ResponseWriter, r *http.Request) {
+func (h *OperationHandler) GetOperations(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
 	var operationRequest OperationsRequest
@@ -104,7 +100,7 @@ func (s *OperationHandler) GetOperations(w http.ResponseWriter, r *http.Request)
 		}
 	}
 
-	operations, err := s.OperationService.GetOperation(operationRequest.Figi, dateFrom, dateTo)
+	operations, err := h.OperationService.GetOperation(operationRequest.AccountId, operationRequest.Figi, dateFrom, dateTo)
 
 	if err != nil {
 		sendErrorResponse(w, "Error getting operations", http.StatusInternalServerError)
@@ -121,13 +117,4 @@ func (s *OperationHandler) GetOperations(w http.ResponseWriter, r *http.Request)
 		log.Println("[ERROR] Encoding response", err)
 		json.NewEncoder(w).Encode(err)
 	}
-}
-
-func sendErrorResponse(w http.ResponseWriter, message string, statusCode int) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(statusCode)
-	json.NewEncoder(w).Encode(ErrorResponse{
-		Error:   http.StatusText(statusCode),
-		Message: message,
-	})
 }

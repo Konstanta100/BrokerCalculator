@@ -2,33 +2,32 @@ package rest
 
 import (
 	"encoding/json"
-	"github.com/Konstanta100/BrokerCalculator/internal/operation"
-	"log"
+	"fmt"
+	"github.com/Konstanta100/BrokerCalculator/internal/dto"
+	"github.com/Konstanta100/BrokerCalculator/internal/service"
 	"net/http"
 	"time"
 )
 
 type OperationsRequest struct {
-	DateFrom   string `json:"dateFrom"`
+	DateFrom   string `json:"dateFrom,omitempty"`
 	DateTimeTo string `json:"dateTo,omitempty"`
 	Figi       string `json:"figi,omitempty"`
-	AccountId  string `json:"accountId,omitempty"`
+	AccountId  string `json:"accountId"`
 }
 
 type OperationsResponse struct {
-	Operations *operation.Operations `json:"operations"`
+	Operations *dto.Operation `json:"operations"`
 }
 
 type OperationHandler struct {
-	OperationService *operation.Service
+	OperationService *service.OperationService
 }
 
-func (h *OperationHandler) CalculateCommission(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-
+func (h *OperationHandler) CommissionFromBroker(w http.ResponseWriter, r *http.Request) {
 	var operationRequest OperationsRequest
-	err := json.NewDecoder(r.Body).Decode(&operationRequest)
-	if err != nil {
+	ctx := r.Context()
+	if err := json.NewDecoder(r.Body).Decode(&operationRequest); err != nil {
 		sendErrorResponse(w, "Invalid JSON format", http.StatusBadRequest)
 		return
 	}
@@ -55,66 +54,47 @@ func (h *OperationHandler) CalculateCommission(w http.ResponseWriter, r *http.Re
 		}
 	}
 
-	calculateCommission, err := h.OperationService.CalculateCommission(operationRequest.AccountId, dateFrom, dateTo)
-	if err != nil {
-		sendErrorResponse(w, "Error getting operations", http.StatusInternalServerError)
+	if operationRequest.AccountId == "" {
+		sendErrorResponse(w, "accountId is required", http.StatusBadRequest)
+		return
 	}
 
+	calculateCommission, err := h.OperationService.CalculateCommission(ctx, operationRequest.AccountId, dateFrom, dateTo)
+	if err != nil {
+		sendErrorResponse(w, fmt.Sprintf("Error getting operations: %v", err.Error()), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 	err = json.NewEncoder(w).Encode(calculateCommission)
 	if err != nil {
-		log.Println("[ERROR] Encoding response", err)
-		json.NewEncoder(w).Encode(err)
+		sendErrorResponse(w, fmt.Sprintf("Error getting operations: %f", err), http.StatusInternalServerError)
 	}
 }
-func (h *OperationHandler) GetOperations(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
+func (h *OperationHandler) LoadOperations(w http.ResponseWriter, r *http.Request) {
 	var operationRequest OperationsRequest
-	err := json.NewDecoder(r.Body).Decode(&operationRequest)
-	if err != nil {
+	ctx := r.Context()
+	if err := json.NewDecoder(r.Body).Decode(&operationRequest); err != nil {
 		sendErrorResponse(w, "Invalid JSON format", http.StatusBadRequest)
 		return
 	}
-
-	if operationRequest.DateFrom == "" {
-		sendErrorResponse(w, "dateFrom are required", http.StatusBadRequest)
+	if operationRequest.AccountId == "" {
+		sendErrorResponse(w, "accountId is required", http.StatusBadRequest)
 		return
 	}
 
-	dateFrom, err := time.Parse(time.DateOnly, operationRequest.DateFrom)
+	operations, err := h.OperationService.LoadOperationsFromBroker(ctx, operationRequest.AccountId)
 	if err != nil {
-		sendErrorResponse(w, "Invalid dateFrom format", http.StatusBadRequest)
+		sendErrorResponse(w, fmt.Sprintf("Error getting operations: %v", err.Error()), http.StatusInternalServerError)
 		return
 	}
 
-	var dateTo time.Time
-
-	if operationRequest.DateTimeTo == "" {
-		dateTo = time.Now()
-	} else {
-		dateTo, err = time.Parse(time.DateOnly, operationRequest.DateTimeTo)
-		if err != nil {
-			sendErrorResponse(w, "Invalid dateTo format", http.StatusBadRequest)
-			return
-		}
-	}
-
-	operations, err := h.OperationService.GetOperation(operationRequest.AccountId, operationRequest.Figi, dateFrom, dateTo)
-
-	if err != nil {
-		sendErrorResponse(w, "Error getting operations", http.StatusInternalServerError)
-	}
-
-	operationResponse := OperationsResponse{}
-	if operations != nil {
-		operationResponse.Operations = operations
-	}
-
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
-	err = json.NewEncoder(w).Encode(operationResponse)
+	err = json.NewEncoder(w).Encode(operations)
 	if err != nil {
-		log.Println("[ERROR] Encoding response", err)
-		json.NewEncoder(w).Encode(err)
+		sendErrorResponse(w, fmt.Sprintf("Error getting operations: %f", err), http.StatusInternalServerError)
 	}
 }

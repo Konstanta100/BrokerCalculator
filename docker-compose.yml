@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  investing:
+    environment:
+      - APP_DB_HOST=pg_investing
+      - APP_DB_PORT=5432
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8182:8182"
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    networks:
+      - investing
+    depends_on:
+      pg_investing:
+        condition: service_healthy
+  pg_investing:
+    image: postgres:17.2-alpine
+    container_name: pg_investing
+    environment:
+      POSTGRES_DB: ${APP_DB_DATABASE}
+      POSTGRES_USER: ${APP_DB_USER}
+      POSTGRES_PASSWORD: ${APP_DB_PASSWORD}
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    volumes:
+      - ./pg_investing:/var/lib/postgresql/data
+    ports:
+      - ${APP_DB_PORT}:5432
+    networks:
+      - investing
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${APP_DB_USER} -d ${APP_DB_DATABASE}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+networks:
+  investing:

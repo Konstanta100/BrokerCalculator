@@ -1,15 +1,15 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"github.com/Konstanta100/BrokerCalculator/internal/build"
 	"github.com/Konstanta100/BrokerCalculator/internal/config"
 )
 
-func RestCmd(conf config.Config) error {
+func RestCmd(ctx context.Context, conf *config.Config) error {
 	builder := build.New(conf)
-	srv, err := builder.RestAPIServer()
-
+	srv, err := builder.RestAPIServer(ctx)
 	if err != nil {
 		return fmt.Errorf("build rest api server: %w", err)
 	}

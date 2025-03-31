@@ -1,6 +1,6 @@
 ARG GO_VERSION=1.23
 
-FROM golang:${GO_VERSION}
+FROM golang:${GO_VERSION}-alpine as builder
 
 WORKDIR /app
 
@@ -10,11 +10,13 @@ RUN go mod download
 
 COPY . .
 
-# Собираем приложение
-RUN go build -o app main.go
+RUN go build -o /myapp
 
-# Указываем порт, который будет использовать приложение
+FROM alpine:latest
+
+COPY --from=builder /myapp /myapp
+COPY .env .env
+
 EXPOSE 8182
 
-# Команда для запуска приложения
-CMD ["./app"]
+CMD ["/myapp"]

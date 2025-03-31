@@ -2,6 +2,9 @@ version: '3.8'
 
 services:
   investing:
+    environment:
+      - APP_DB_HOST=pg_investing
+      - APP_DB_PORT=5432
     build:
       context: .
       dockerfile: Dockerfile
@@ -9,6 +12,8 @@ services:
       - "8182:8182"
     env_file:
       - .env
+    volumes:
+      - .:/app
     networks:
       - investing
     depends_on:

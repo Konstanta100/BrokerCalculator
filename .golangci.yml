@@ -2,6 +2,17 @@ run:
   tests: true
 
 linters-settings:
+  depguard:
+    list-type: allow
+    packages:
+      - github.com/Konstanta100/BrokerCalculator/internal/config
+      - github.com/russianinvestments/invest-api-go-sdk/...
+      - github.com/caarlos0/env/v11
+      - github.com/joho/godotenv
+      - github.com/jackc/pgx/v5/pgtype
+      - fmt
+      - net/http
+    include-go-root: true
   funlen:
     lines: 150
     statements: 80

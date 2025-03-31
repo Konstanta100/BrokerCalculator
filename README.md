@@ -1,4 +1,9 @@
-# HTTP-сервер статистики по брокерскому Счёту 
+## BrokerCalculator HTTP-сервер статистики по брокерскому cчету
+
+[![Go Report Card](https://goreportcard.com/badge/github.com/Konstanta100/BrokerCalculator)](https://goreportcard.com/report/github.com/Konstanta100/BrokerCalculator)
+[![CI Status](https://github.com/Konstanta100/BrokerCalculator/actions/workflows/ci.yml/badge.svg)](https://github.com/Konstanta100/BrokerCalculator/actions)
+[![Go Version](https://img.shields.io/badge/go-%3E%3D1.14-blue)](https://golang.org/dl/)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 ## Описание:
 В проекте представлен HTTP-сервер, который обрабатывает запросы

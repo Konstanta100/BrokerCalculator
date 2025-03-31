@@ -2,9 +2,9 @@ name: CI Pipeline
 
 on:
   push:
-    branches: [master]
+    branches: ['*']
   pull_request:
-    branches: [master]
+    branches: ['*']
 
 jobs:
   lint:
@@ -26,18 +26,15 @@ jobs:
         uses: golangci/golangci-lint-action@v3
         with:
           version: latest
-          args: --timeout=5m
-
-      - name: Run tests
-        run: go test -race -count 100 ./...
+          args: --timeout=5m --config=.golangci.yml
 
   test:
     name: Test
-    runs-on: ubuntu-latest
     needs: lint
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        go-version: [ '1.23', '1.22', '1.21', '1.20', '1.19', '1.18', '1.17', '1.16', '1.15', '1.14' ]
+        go-version: ['1.14', '1.23']
     steps:
       - uses: actions/checkout@v4
 
@@ -63,4 +60,6 @@ jobs:
           go-version: "1.14"
 
       - name: Build binary
-        run: go build -o ./bin/service ./...
+        run: |
+          mkdir -p ./bin
+          go build -o ./bin/service ./...

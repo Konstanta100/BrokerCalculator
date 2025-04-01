@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+
 	"github.com/Konstanta100/BrokerCalculator/internal/repository"
 	"github.com/jackc/pgx/v5/pgtype"
 )
@@ -14,7 +15,7 @@ func NewUserService(repo *repository.Queries) *UserService {
 	return &UserService{repository: repo}
 }
 
-func (s *UserService) FindById(ctx context.Context, id pgtype.UUID) (*repository.User, error) {
+func (s *UserService) FindByID(ctx context.Context, id pgtype.UUID) (*repository.User, error) {
 	user, err := s.repository.UserById(ctx, id)
 	if err != nil {
 		return nil, err

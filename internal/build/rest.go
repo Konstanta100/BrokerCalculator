@@ -2,23 +2,20 @@ package build
 
 import (
 	"fmt"
+	"log"
+	"net"
+	"net/http"
+	"time"
+
 	"github.com/Konstanta100/BrokerCalculator/internal/restapi"
 	"github.com/gorilla/mux"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rs/zerolog"
 	"golang.org/x/net/context"
-	"log"
-	"net"
-	"net/http"
-	"time"
 )
 
 func (b *Builder) RestAPIServer(ctx context.Context) (*http.Server, error) {
-	server, err := b.httpServer(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("could not create http server: %w", err)
-	}
-
+	server := b.httpServer(ctx)
 	db, err := b.NewPostgresDB(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("could not create postgres db: %w", err)
@@ -42,7 +39,7 @@ func (b *Builder) httpRouter() *mux.Router {
 	return b.router
 }
 
-func (b *Builder) httpServer(ctx context.Context) (*http.Server, error) {
+func (b *Builder) httpServer(ctx context.Context) *http.Server {
 	server := &http.Server{
 		Addr:              net.JoinHostPort(b.config.HTTP.Host, b.config.HTTP.Port),
 		ReadHeaderTimeout: time.Millisecond * 5,
@@ -53,7 +50,7 @@ func (b *Builder) httpServer(ctx context.Context) (*http.Server, error) {
 		},
 	}
 
-	return server, nil
+	return server
 }
 
 func (b *Builder) registerHandlers(db *pgxpool.Pool) error {

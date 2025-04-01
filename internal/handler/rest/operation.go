@@ -3,17 +3,18 @@ package rest
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/Konstanta100/BrokerCalculator/internal/dto"
-	"github.com/Konstanta100/BrokerCalculator/internal/service"
 	"net/http"
 	"time"
+
+	"github.com/Konstanta100/BrokerCalculator/internal/dto"
+	"github.com/Konstanta100/BrokerCalculator/internal/service"
 )
 
 type OperationsRequest struct {
 	DateFrom   string `json:"dateFrom,omitempty"`
 	DateTimeTo string `json:"dateTo,omitempty"`
 	Figi       string `json:"figi,omitempty"`
-	AccountId  string `json:"accountId"`
+	AccountID  string `json:"accountId"`
 }
 
 type OperationsResponse struct {
@@ -54,12 +55,12 @@ func (h *OperationHandler) CommissionFromBroker(w http.ResponseWriter, r *http.R
 		}
 	}
 
-	if operationRequest.AccountId == "" {
+	if operationRequest.AccountID == "" {
 		sendErrorResponse(w, "accountId is required", http.StatusBadRequest)
 		return
 	}
 
-	calculateCommission, err := h.OperationService.CalculateCommission(ctx, operationRequest.AccountId, dateFrom, dateTo)
+	calculateCommission, err := h.OperationService.CalculateCommission(ctx, operationRequest.AccountID, dateFrom, dateTo)
 	if err != nil {
 		sendErrorResponse(w, fmt.Sprintf("Error getting operations: %v", err.Error()), http.StatusInternalServerError)
 		return
@@ -80,12 +81,12 @@ func (h *OperationHandler) LoadOperations(w http.ResponseWriter, r *http.Request
 		sendErrorResponse(w, "Invalid JSON format", http.StatusBadRequest)
 		return
 	}
-	if operationRequest.AccountId == "" {
+	if operationRequest.AccountID == "" {
 		sendErrorResponse(w, "accountId is required", http.StatusBadRequest)
 		return
 	}
 
-	operations, err := h.OperationService.LoadOperationsFromBroker(ctx, operationRequest.AccountId)
+	operations, err := h.OperationService.LoadOperationsFromBroker(ctx, operationRequest.AccountID)
 	if err != nil {
 		sendErrorResponse(w, fmt.Sprintf("Error getting operations: %v", err.Error()), http.StatusInternalServerError)
 		return

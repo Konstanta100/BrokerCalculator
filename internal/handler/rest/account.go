@@ -2,9 +2,10 @@ package rest
 
 import (
 	"encoding/json"
+	"net/http"
+
 	"github.com/Konstanta100/BrokerCalculator/internal/service"
 	"github.com/jackc/pgx/v5/pgtype"
-	"net/http"
 )
 
 type AccountHandler struct {
@@ -49,11 +50,11 @@ func (h *AccountHandler) Account(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	id := r.URL.Query().Get("id")
 	if id == "" {
-		sendErrorResponse(w, "Id is required", http.StatusBadRequest)
+		sendErrorResponse(w, "ID is required", http.StatusBadRequest)
 		return
 	}
 
-	account, err := h.AccountService.FindById(ctx, id)
+	account, err := h.AccountService.FindByID(ctx, id)
 	if account == nil || err != nil {
 		sendErrorResponse(w, "Error getting account", http.StatusNotFound)
 	}

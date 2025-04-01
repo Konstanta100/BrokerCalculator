@@ -3,6 +3,9 @@ package service
 import (
 	"context"
 	"fmt"
+	"log"
+	"time"
+
 	"github.com/Konstanta100/BrokerCalculator/internal/dto"
 	"github.com/Konstanta100/BrokerCalculator/internal/repository"
 	"github.com/jackc/pgx/v5"
@@ -10,8 +13,6 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/russianinvestments/invest-api-go-sdk/investgo"
 	pb "github.com/russianinvestments/invest-api-go-sdk/proto"
-	"log"
-	"time"
 )
 
 type OperationService struct {
@@ -20,7 +21,11 @@ type OperationService struct {
 	db              *pgxpool.Pool
 }
 
-func NewOperationService(operationClient *investgo.OperationsServiceClient, repo *repository.Queries, db *pgxpool.Pool) *OperationService {
+func NewOperationService(
+	operationClient *investgo.OperationsServiceClient,
+	repo *repository.Queries,
+	db *pgxpool.Pool,
+) *OperationService {
 	return &OperationService{
 		operationClient: operationClient,
 		repository:      repo,
@@ -28,9 +33,13 @@ func NewOperationService(operationClient *investgo.OperationsServiceClient, repo
 	}
 }
 
-func (s *OperationService) CalculateCommission(ctx context.Context, accountId string, dateTimeFrom, dateTimeTo time.Time) (*dto.CalculateCommission, error) {
+func (s *OperationService) CalculateCommission(
+	ctx context.Context,
+	accountID string,
+	dateTimeFrom, dateTimeTo time.Time,
+) (*dto.CalculateCommission, error) {
 	queryParam := repository.OperationsByInstrumentAndDateRangeParams{
-		AccountID:      accountId,
+		AccountID:      accountID,
 		InstrumentType: pb.OperationType_OPERATION_TYPE_BROKER_FEE.String(),
 		Date: pgtype.Timestamp{
 			Time:  dateTimeFrom,
@@ -73,15 +82,17 @@ func (s *OperationService) CalculateCommission(ctx context.Context, accountId st
 
 		result.DateCommissions[dateCommission][op.Currency] += payment
 		result.TotalPayments[op.Currency] += payment
-
 	}
 
 	return result, nil
 }
 
-func (s *OperationService) LoadOperationsFromBroker(ctx context.Context, accountId string) ([]*repository.Operation, error) {
+func (s *OperationService) LoadOperationsFromBroker(
+	ctx context.Context,
+	accountID string,
+) ([]*repository.Operation, error) {
 	cursorRequest := investgo.GetOperationsByCursorRequest{
-		AccountId:          accountId,
+		AccountId:          accountID,
 		State:              pb.OperationState_OPERATION_STATE_EXECUTED,
 		OperationTypes:     []pb.OperationType{pb.OperationType_OPERATION_TYPE_BROKER_FEE},
 		WithoutTrades:      true,
@@ -103,14 +114,14 @@ func (s *OperationService) LoadOperationsFromBroker(ctx context.Context, account
 		}
 
 		operationParams = append(operationParams, repository.BulkInsertOperationsParams{
-			ID:             operationDto.Id,
+			ID:             operationDto.ID,
 			Figi:           operationDto.Figi,
 			InstrumentType: operationDto.InstrumentType,
 			Quantity:       operationDto.Quantity,
 			Payment:        payment,
 			Currency:       operationDto.Currency,
 			Date:           pgtype.Timestamp{Time: operationDto.Date, Valid: true},
-			AccountID:      accountId,
+			AccountID:      accountID,
 		})
 	}
 
@@ -119,7 +130,7 @@ func (s *OperationService) LoadOperationsFromBroker(ctx context.Context, account
 		return nil, fmt.Errorf("failed to insert operations: %w", err)
 	}
 
-	operations, err := s.repository.OperationsByAccountId(ctx, accountId)
+	operations, err := s.repository.OperationsByAccountId(ctx, accountID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load operations: %w", err)
 	}
@@ -127,7 +138,9 @@ func (s *OperationService) LoadOperationsFromBroker(ctx context.Context, account
 	return operations, nil
 }
 
-func (s *OperationService) findAllOperationsByCursor(cursorRequest *investgo.GetOperationsByCursorRequest) ([]*dto.Operation, error) {
+func (s *OperationService) findAllOperationsByCursor(
+	cursorRequest *investgo.GetOperationsByCursorRequest,
+) ([]*dto.Operation, error) {
 	var (
 		allOperations []*dto.Operation
 		cursor        string
@@ -145,7 +158,7 @@ func (s *OperationService) findAllOperationsByCursor(cursorRequest *investgo.Get
 			for _, op := range ops {
 				allOperations = append(allOperations,
 					&dto.Operation{
-						Id:             op.GetId(),
+						ID:             op.GetId(),
 						Figi:           op.GetFigi(),
 						InstrumentType: op.GetType().String(),
 						Date:           op.GetDate().AsTime(),
@@ -165,7 +178,10 @@ func (s *OperationService) findAllOperationsByCursor(cursorRequest *investgo.Get
 	return allOperations, nil
 }
 
-func (s *OperationService) insertWithTransaction(ctx context.Context, operations []repository.BulkInsertOperationsParams) error {
+func (s *OperationService) insertWithTransaction(
+	ctx context.Context,
+	operations []repository.BulkInsertOperationsParams,
+) error {
 	tx, err := s.db.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.RepeatableRead})
 	if err != nil {
 		return fmt.Errorf("begin transaction: %w", err)

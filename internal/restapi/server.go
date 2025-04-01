@@ -2,6 +2,7 @@ package restapi
 
 import (
 	"fmt"
+
 	"github.com/Konstanta100/BrokerCalculator/internal/config"
 	"github.com/Konstanta100/BrokerCalculator/internal/handler/rest"
 	"github.com/Konstanta100/BrokerCalculator/internal/repository"
@@ -11,7 +12,6 @@ import (
 
 type Server struct {
 	conf             *config.Config
-	brokerService    service.BrokerService
 	OperationHandler rest.OperationHandler
 	AccountHandler   rest.AccountHandler
 	UserHandler      rest.UserHandler
@@ -20,7 +20,6 @@ type Server struct {
 func New(conf *config.Config, db *pgxpool.Pool) (*Server, error) {
 	server := Server{conf: conf}
 	brokerService, err := service.New(conf.BrokerConfig)
-
 	if err != nil {
 		return nil, fmt.Errorf("could not create broker service: %w", err)
 	}

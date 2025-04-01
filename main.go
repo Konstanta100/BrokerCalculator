@@ -2,9 +2,10 @@ package main
 
 import (
 	"context"
+	"log"
+
 	"github.com/Konstanta100/BrokerCalculator/cmd"
 	"github.com/Konstanta100/BrokerCalculator/internal/config"
-	"log"
 )
 
 func main() {

@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+
 	"github.com/Konstanta100/BrokerCalculator/internal/build"
 	"github.com/Konstanta100/BrokerCalculator/internal/config"
 )
@@ -15,7 +16,7 @@ func RestCmd(ctx context.Context, conf *config.Config) error {
 	}
 
 	if err = srv.ListenAndServe(); err != nil {
-		return fmt.Errorf("failed to start server: %v", err)
+		return fmt.Errorf("failed to start server: %w", err)
 	}
 
 	return nil

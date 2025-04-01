@@ -3,11 +3,12 @@ package rest
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+
 	"github.com/Konstanta100/BrokerCalculator/internal/repository"
 	"github.com/Konstanta100/BrokerCalculator/internal/service"
 	"github.com/jackc/pgx/v5/pgtype"
-	"io"
-	"net/http"
 )
 
 type UserRequest struct {
@@ -37,7 +38,7 @@ func (h *UserHandler) User(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.UserService.FindById(ctx, userID)
+	user, err := h.UserService.FindByID(ctx, userID)
 	if user == nil || err != nil {
 		sendErrorResponse(w, "Error getting account", http.StatusNotFound)
 		return

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	"github.com/Konstanta100/BrokerCalculator/internal/repository"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -18,7 +19,11 @@ type AccountService struct {
 	db            *pgxpool.Pool
 }
 
-func NewAccountService(accountClient *investgo.UsersServiceClient, repo *repository.Queries, db *pgxpool.Pool) *AccountService {
+func NewAccountService(
+	accountClient *investgo.UsersServiceClient,
+	repo *repository.Queries,
+	db *pgxpool.Pool,
+) *AccountService {
 	return &AccountService{
 		accountClient: accountClient,
 		repository:    repo,
@@ -26,10 +31,12 @@ func NewAccountService(accountClient *investgo.UsersServiceClient, repo *reposit
 	}
 }
 
-func (s *AccountService) LoadAccountsFromBroker(ctx context.Context, userID pgtype.UUID) ([]*repository.Account, error) {
+func (s *AccountService) LoadAccountsFromBroker(
+	ctx context.Context,
+	userID pgtype.UUID,
+) ([]*repository.Account, error) {
 	user, err := s.repository.UserById(ctx, userID)
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 
@@ -55,29 +62,15 @@ func (s *AccountService) LoadAccountsFromBroker(ctx context.Context, userID pgty
 			})
 	}
 
-	tx, err := s.db.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.RepeatableRead})
+	err = s.insertWithTransaction(ctx, accountParamList)
 	if err != nil {
-		return nil, err
-	}
-	defer tx.Rollback(ctx)
-
-	dbTX := repository.Queries{}
-	repo := dbTX.WithTx(tx)
-	for _, accountParam := range accountParamList {
-		_, err = repo.AccountCreate(ctx, accountParam)
-		if err != nil {
-			return nil, errors.New("accounts not created")
-		}
-	}
-
-	if err = tx.Commit(ctx); err != nil {
-		return nil, errors.New("accounts not created")
+		return nil, fmt.Errorf("failed to insert accounts: %w", err)
 	}
 
 	return s.FindAccounts(ctx, userID)
 }
 
-func (s *AccountService) FindById(ctx context.Context, id string) (*repository.Account, error) {
+func (s *AccountService) FindByID(ctx context.Context, id string) (*repository.Account, error) {
 	account, err := s.repository.AccountById(ctx, id)
 	if err != nil {
 		return nil, err
@@ -93,4 +86,23 @@ func (s *AccountService) FindAccounts(ctx context.Context, userID pgtype.UUID) (
 	}
 
 	return accounts, nil
+}
+
+func (s *AccountService) insertWithTransaction(ctx context.Context, paramList []repository.AccountCreateParams) error {
+	tx, err := s.db.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.RepeatableRead})
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	dbTX := repository.Queries{}
+	repo := dbTX.WithTx(tx)
+	for _, accountParam := range paramList {
+		_, err = repo.AccountCreate(ctx, accountParam)
+		if err != nil {
+			return errors.New("accounts not created")
+		}
+	}
+
+	return tx.Commit(ctx)
 }

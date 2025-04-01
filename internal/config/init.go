@@ -2,18 +2,19 @@ package config
 
 import (
 	"fmt"
-	"github.com/caarlos0/env/v11"
-	"github.com/joho/godotenv"
-	"github.com/russianinvestments/invest-api-go-sdk/investgo"
 	"log"
 	"os"
 	"strconv"
+
+	"github.com/caarlos0/env/v11"
+	"github.com/joho/godotenv"
+	"github.com/russianinvestments/invest-api-go-sdk/investgo"
 )
 
 func LoadConfig() (*Config, error) {
 	conf := &Config{}
 	if err := godotenv.Load(); err != nil {
-		return nil, fmt.Errorf("no .env file found: %v", err)
+		return nil, fmt.Errorf("no .env file found: %w", err)
 	}
 
 	opts := env.Options{
@@ -25,19 +26,12 @@ func LoadConfig() (*Config, error) {
 		return nil, fmt.Errorf("can't parse config: %w", err)
 	}
 
-	brokerConfig, err := loadBrokerConfig()
-	if err != nil {
-		return nil, fmt.Errorf("failed to load broker config: %v", err)
-	}
-
-	conf.BrokerConfig = brokerConfig
+	conf.BrokerConfig = loadBrokerConfig()
 
 	return conf, nil
 }
 
-func loadBrokerConfig() (investgo.Config, error) {
-	var conf investgo.Config
-
+func loadBrokerConfig() investgo.Config {
 	disableResourceExhaustedRetry, err := strconv.ParseBool(os.Getenv("TINKOFF_DISABLE_RESOURCE_EXHAUSTED_RETRY"))
 	if err != nil {
 		disableResourceExhaustedRetry = false
@@ -48,7 +42,6 @@ func loadBrokerConfig() (investgo.Config, error) {
 	if err != nil {
 		disableAllRetry = false
 		log.Printf("error parsing TINKOFF_DISABLE_ALL_RETRY: %f", err)
-
 	}
 
 	maxRetries, err := strconv.ParseUint(os.Getenv("TINKOFF_MAX_RETRIES"), 10, 32)
@@ -57,7 +50,7 @@ func loadBrokerConfig() (investgo.Config, error) {
 		log.Printf("error parsing TINKOFF_MAX_RETRIES: %f", err)
 	}
 
-	conf = investgo.Config{
+	return investgo.Config{
 		EndPoint:                      os.Getenv("TINKOFF_ADDRESS"),
 		Token:                         os.Getenv("TINKOFF_API_KEY"),
 		AppName:                       os.Getenv("APP_NAME"),
@@ -66,6 +59,4 @@ func loadBrokerConfig() (investgo.Config, error) {
 		DisableAllRetry:               disableAllRetry,
 		MaxRetries:                    uint(maxRetries),
 	}
-
-	return conf, nil
 }

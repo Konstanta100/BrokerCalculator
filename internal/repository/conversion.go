@@ -3,16 +3,17 @@ package repository
 import (
 	"errors"
 	"fmt"
+
 	"github.com/jackc/pgx/v5/pgtype"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func ConvertProtoTimestampToPgType(protoTs *timestamppb.Timestamp) pgtype.Timestamp {
-	if protoTs == nil || !protoTs.IsValid() {
+func ConvertProtoTimestampToPgType(protoTS *timestamppb.Timestamp) pgtype.Timestamp {
+	if protoTS == nil || !protoTS.IsValid() {
 		return pgtype.Timestamp{Valid: false}
 	}
 
-	goTime := protoTs.AsTime()
+	goTime := protoTS.AsTime()
 	return pgtype.Timestamp{
 		Time:  goTime,
 		Valid: true,

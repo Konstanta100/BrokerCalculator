@@ -3,9 +3,10 @@ package build
 import (
 	"context"
 	"fmt"
+	"net"
+
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"net"
 )
 
 func (b *Builder) NewPostgresDB(ctx context.Context) (*pgxpool.Pool, error) {

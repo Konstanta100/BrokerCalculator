@@ -8,6 +8,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/Konstanta100/BrokerCalculator/internal/dto"
+	"github.com/Konstanta100/BrokerCalculator/internal/repository"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/russianinvestments/invest-api-go-sdk/investgo"
 	pb "github.com/russianinvestments/invest-api-go-sdk/proto"
@@ -15,9 +17,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 	"google.golang.org/protobuf/types/known/timestamppb"
-
-	"github.com/Konstanta100/BrokerCalculator/internal/dto"
-	"github.com/Konstanta100/BrokerCalculator/internal/repository"
 )
 
 type MockInvestAPIClient struct {

@@ -1,9 +1,10 @@
 package service
 
 import (
+	"time"
+
 	"github.com/russianinvestments/invest-api-go-sdk/investgo"
 	pb "github.com/russianinvestments/invest-api-go-sdk/proto"
-	"time"
 )
 
 type OperationsClient interface {

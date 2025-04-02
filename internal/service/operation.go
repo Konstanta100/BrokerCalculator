@@ -8,28 +8,23 @@ import (
 
 	"github.com/Konstanta100/BrokerCalculator/internal/dto"
 	"github.com/Konstanta100/BrokerCalculator/internal/repository"
-	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/russianinvestments/invest-api-go-sdk/investgo"
 	pb "github.com/russianinvestments/invest-api-go-sdk/proto"
 )
 
 type OperationService struct {
-	operationClient *investgo.OperationsServiceClient
-	repository      *repository.Queries
-	db              *pgxpool.Pool
+	operationClient OperationsClient
+	repository      repository.Querier
 }
 
 func NewOperationService(
 	operationClient *investgo.OperationsServiceClient,
 	repo *repository.Queries,
-	db *pgxpool.Pool,
 ) *OperationService {
 	return &OperationService{
 		operationClient: operationClient,
 		repository:      repo,
-		db:              db,
 	}
 }
 
@@ -125,7 +120,7 @@ func (s *OperationService) LoadOperationsFromBroker(
 		})
 	}
 
-	err = s.insertWithTransaction(ctx, operationParams)
+	_, err = s.repository.BulkInsertOperations(ctx, operationParams)
 	if err != nil {
 		return nil, fmt.Errorf("failed to insert operations: %w", err)
 	}
@@ -176,25 +171,4 @@ func (s *OperationService) findAllOperationsByCursor(
 	}
 
 	return allOperations, nil
-}
-
-func (s *OperationService) insertWithTransaction(
-	ctx context.Context,
-	operations []repository.BulkInsertOperationsParams,
-) error {
-	tx, err := s.db.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.RepeatableRead})
-	if err != nil {
-		return fmt.Errorf("begin transaction: %w", err)
-	}
-	defer tx.Rollback(ctx)
-
-	dbTX := repository.Queries{}
-	repo := dbTX.WithTx(tx)
-
-	_, err = repo.BulkInsertOperations(ctx, operations)
-	if err != nil {
-		return fmt.Errorf("operation not created: %w", err)
-	}
-
-	return tx.Commit(ctx)
 }

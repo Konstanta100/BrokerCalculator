@@ -28,7 +28,7 @@ func New(conf *config.Config, db *pgxpool.Pool) (*Server, error) {
 	operationClient := brokerService.Client.NewOperationsServiceClient()
 	accountClient := brokerService.Client.NewUsersServiceClient()
 
-	operationService := service.NewOperationService(operationClient, repo, db)
+	operationService := service.NewOperationService(operationClient, repo)
 	accountService := service.NewAccountService(accountClient, repo, db)
 	userService := service.NewUserService(repo)
 

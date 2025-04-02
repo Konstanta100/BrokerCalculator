@@ -19,8 +19,8 @@ type OperationService struct {
 }
 
 func NewOperationService(
-	operationClient *investgo.OperationsServiceClient,
-	repo *repository.Queries,
+	operationClient OperationsClient,
+	repo repository.Querier,
 ) *OperationService {
 	return &OperationService{
 		operationClient: operationClient,

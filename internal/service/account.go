@@ -9,19 +9,18 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/russianinvestments/invest-api-go-sdk/investgo"
 	pb "github.com/russianinvestments/invest-api-go-sdk/proto"
 )
 
 type AccountService struct {
-	accountClient *investgo.UsersServiceClient
-	repository    *repository.Queries
+	accountClient AccountClient
+	repository    repository.Querier
 	db            *pgxpool.Pool
 }
 
 func NewAccountService(
-	accountClient *investgo.UsersServiceClient,
-	repo *repository.Queries,
+	accountClient AccountClient,
+	repo repository.Querier,
 	db *pgxpool.Pool,
 ) *AccountService {
 	return &AccountService{
@@ -70,10 +69,10 @@ func (s *AccountService) LoadAccountsFromBroker(
 	return s.FindAccounts(ctx, userID)
 }
 
-func (s *AccountService) FindByID(ctx context.Context, id string) (*repository.Account, error) {
-	account, err := s.repository.AccountById(ctx, id)
+func (s *AccountService) FindByID(ctx context.Context, accountID string) (*repository.Account, error) {
+	account, err := s.repository.AccountById(ctx, accountID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get account: %w", err)
 	}
 
 	return account, nil

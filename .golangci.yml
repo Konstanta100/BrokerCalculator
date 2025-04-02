@@ -1,5 +1,7 @@
 run:
   tests: true
+  output:
+    format: colored-line-number
 
 linters:
   disable-all: true

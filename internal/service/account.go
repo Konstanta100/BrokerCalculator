@@ -12,6 +12,8 @@ import (
 	pb "github.com/russianinvestments/invest-api-go-sdk/proto"
 )
 
+var ErrInvalidUserID = errors.New("invalid user ID")
+
 type AccountService struct {
 	accountClient AccountClient
 	repository    repository.Querier
@@ -79,9 +81,13 @@ func (s *AccountService) FindByID(ctx context.Context, accountID string) (*repos
 }
 
 func (s *AccountService) FindAccounts(ctx context.Context, userID pgtype.UUID) ([]*repository.Account, error) {
+	if !userID.Valid {
+		return nil, ErrInvalidUserID
+	}
+
 	accounts, err := s.repository.AccountsByUserId(ctx, userID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get accounts: %w", err)
 	}
 
 	return accounts, nil

@@ -45,3 +45,7 @@ services:
 networks:
   investing:
     driver: bridge
+
+volumes:
+  pg_data:  # Именованный том для PostgreSQL
+  go_mod_cache:  # Именованный том для кэша Go модулей

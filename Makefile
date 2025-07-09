@@ -5,8 +5,8 @@ LOCAL_BIN:=$(CURDIR)/bin
 ENV_DIR = .env
 
 install-deps:
-	GOBIN=$(LOCAL_BIN) go install github.com/pressly/goose/v3/cmd/goose@latest
-	GOBIN=$(LOCAL_BIN) go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+	GOBIN=$(LOCAL_BIN) go install github.com/pressly/goose/v3/cmd/goose@v3.24.1
+	GOBIN=$(LOCAL_BIN) go install github.com/sqlc-dev/sqlc/cmd/sqlc@v1.29.0
 
 sqlc-gen:
 	bin/sqlc generate

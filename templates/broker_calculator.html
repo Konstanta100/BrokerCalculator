@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Калькулятор комиссий брокера</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input, button {
+            padding: 8px;
+            width: 100%;
+            box-sizing: border-box;
+            max-width: 300px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+            width: auto;
+            padding: 10px 20px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #result {
+            margin-top: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+
+        .summary {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .summary-value {
+            font-weight: bold;
+        }
+
+        .commissions-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .commissions-table th, .commissions-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .commissions-table th {
+            background-color: #f2f2f2;
+        }
+
+        .commissions-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .loading {
+            display: none;
+            margin: 20px 0;
+            font-style: italic;
+            color: #666;
+        }
+
+        .currency {
+            text-align: right;
+        }
+
+        .negative {
+            color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+<h1>Калькулятор комиссий брокера</h1>
+<nav>
+    <a href="/">Главная</a>
+</nav>
+
+<div class="form-container">
+    <div class="form-group">
+        <label for="accountId">Номер счёта:</label>
+        <input type="text" id="accountId" placeholder="Например: 2158466292" required>
+    </div>
+
+    <div class="form-group">
+        <label for="dateFrom">Дата начала периода:</label>
+        <input type="date" id="dateFrom" required>
+    </div>
+
+    <div class="form-group">
+        <label for="dateTo">Дата окончания периода:</label>
+        <input type="date" id="dateTo" required>
+    </div>
+
+    <button id="calculateBtn">Рассчитать комиссию</button>
+    <div id="loading" class="loading">Идёт расчёт комиссий...</div>
+    <div id="error" class="error"></div>
+</div>
+
+<div id="result">
+    <div id="summary" class="summary"></div>
+    <div id="details">
+        <h3>Детализация комиссий по дням</h3>
+        <table class="commissions-table">
+            <thead>
+            <tr>
+                <th>Дата</th>
+                <th>Комиссия (RUB)</th>
+                <th>Комиссия (PT)</th>
+            </tr>
+            </thead>
+            <tbody id="commissions-body">
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    document.getElementById('calculateBtn').addEventListener('click', function () {
+        const accountId = document.getElementById('accountId').value;
+        const dateFrom = document.getElementById('dateFrom').value;
+        const dateTo = document.getElementById('dateTo').value;
+        const errorElement = document.getElementById('error');
+        const loadingElement = document.getElementById('loading');
+        const resultElement = document.getElementById('result');
+
+        // Скрываем предыдущие результаты и ошибки
+        errorElement.textContent = '';
+        resultElement.style.display = 'none';
+
+        // Валидация
+        if (!accountId || !dateFrom || !dateTo) {
+            errorElement.textContent = 'Все поля обязательны для заполнения';
+            return;
+        }
+
+        if (new Date(dateFrom) > new Date(dateTo)) {
+            errorElement.textContent = 'Дата начала не может быть позже даты окончания';
+            return;
+        }
+
+        // Показываем индикатор загрузки
+        loadingElement.style.display = 'block';
+
+        // Формируем данные для запроса
+        const requestData = {
+            accountId: accountId,
+            dateFrom: dateFrom,
+            dateTo: dateTo
+        };
+
+        // Отправляем запрос к API
+        fetch('/api/operations/commission', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestData)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Ошибка сервера: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Скрываем индикатор загрузки
+                loadingElement.style.display = 'none';
+
+                // Обрабатываем и отображаем данные
+                displayResults(data, accountId, dateFrom, dateTo);
+            })
+            .catch(error => {
+                loadingElement.style.display = 'none';
+                errorElement.textContent = 'Ошибка при запросе: ' + error.message;
+                console.error('Error:', error);
+            });
+    });
+
+    function displayResults(data, accountId, dateFrom, dateTo) {
+        const resultElement = document.getElementById('result');
+        const summaryElement = document.getElementById('summary');
+        const commissionsBody = document.getElementById('commissions-body');
+
+        // Очищаем предыдущие данные
+        commissionsBody.innerHTML = '';
+
+        // Форматируем числа
+        const formatCurrency = (value, currency) => {
+            if (value === undefined || value === null) return '-';
+            const formattedValue = Math.abs(value).toFixed(2);
+            return `<span class="negative">${formattedValue} ${currency}</span>`;
+        };
+
+        // Заполняем сводную информацию
+        summaryElement.innerHTML = `
+                <h3>Сводная информация</h3>
+                <div class="summary-item">
+                    <span>Номер счёта:</span>
+                    <span class="summary-value">${accountId}</span>
+                </div>
+                <div class="summary-item">
+                    <span>Период:</span>
+                    <span class="summary-value">${dateFrom} — ${dateTo}</span>
+                </div>
+                <div class="summary-item">
+                    <span>Общая комиссия (RUB):</span>
+                    <span class="summary-value">${formatCurrency(data.totalPayments?.rub, 'RUB')}</span>
+                </div>
+                <div class="summary-item">
+                    <span>Общая комиссия (PT):</span>
+                    <span class="summary-value">${formatCurrency(data.totalPayments?.['pt.'], 'PT')}</span>
+                </div>
+            `;
+
+        // Заполняем таблицу с детализацией
+        if (data.dateCommissions) {
+            const dates = Object.keys(data.dateCommissions).sort();
+
+            dates.forEach(date => {
+                const commission = data.dateCommissions[date];
+                const row = document.createElement('tr');
+
+                row.innerHTML = `
+                        <td>${date}</td>
+                        <td class="currency">${commission.rub !== undefined ? formatCurrency(commission.rub, 'RUB') : '-'}</td>
+                        <td class="currency">${commission['pt.'] !== undefined ? formatCurrency(commission['pt.'], 'PT') : '-'}</td>
+                    `;
+
+                commissionsBody.appendChild(row);
+            });
+        }
+
+        // Показываем результаты
+        resultElement.style.display = 'block';
+    }
+</script>
+</body>
+</html>

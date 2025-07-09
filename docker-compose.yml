@@ -5,6 +5,7 @@ services:
     environment:
       - APP_DB_HOST=pg_investing
       - APP_DB_PORT=5432
+      - GOPROXY=https://proxy.golang.org,direct
     build:
       context: .
       dockerfile: Dockerfile
@@ -14,11 +15,13 @@ services:
       - .env
     volumes:
       - .:/app
+      - go_mod_cache:/go/pkg/mod
     networks:
       - investing
     depends_on:
       pg_investing:
         condition: service_healthy
+    restart: unless-stopped
   pg_investing:
     image: postgres:17.2-alpine
     container_name: pg_investing
@@ -41,3 +44,4 @@ services:
 
 networks:
   investing:
+    driver: bridge

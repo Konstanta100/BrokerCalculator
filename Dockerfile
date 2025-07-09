@@ -4,6 +4,11 @@ FROM golang:${GO_VERSION}-alpine as builder
 
 WORKDIR /app
 
+# Решение проблемы DNS и IPv6
+RUN echo "nameserver 8.8.8.8" > /etc/resolv.conf && \
+    echo "nameserver 1.1.1.1" >> /etc/resolv.conf && \
+    apk add --no-cache git
+
 COPY go.mod go.sum ./
 
 RUN go mod download

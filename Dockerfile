@@ -2,16 +2,18 @@ ARG GO_VERSION=1.23.4
 
 FROM golang:${GO_VERSION}-alpine as builder
 
-WORKDIR /app
+# Устанавливаем git и настраиваем DNS через Docker-флаги
+RUN apk add --no-cache git
 
-# Решение проблемы DNS и IPv6
-RUN echo "nameserver 8.8.8.8" > /etc/resolv.conf && \
-    echo "nameserver 1.1.1.1" >> /etc/resolv.conf && \
-    apk add --no-cache git
+WORKDIR /app
 
 COPY go.mod go.sum ./
 
-RUN go mod download
+# Используем альтернативный GOPROXY и отключаем IPv6
+ENV GOPROXY=https://goproxy.cn,direct
+ENV GOINSECURE=proxy.golang.org
+RUN echo "Building with GOPROXY=${GOPROXY}" && \
+    go mod download
 
 COPY . .
 

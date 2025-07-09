@@ -12,13 +12,13 @@ sqlc-gen:
 	bin/sqlc generate
 
 migration-status:
-	goose -dir ${MIGRATION_DIR} postgres ${MIGRATION_DSN} status -v
+	bin/goose -dir ${MIGRATION_DIR} postgres ${MIGRATION_DSN} status -v
 
 migration-add:
-	goose -dir ${MIGRATION_DIR} create $(name) sql
+	bin/goose -dir ${MIGRATION_DIR} create $(name) sql
 
 migration-up:
-	goose -dir ${MIGRATION_DIR} postgres ${MIGRATION_DSN} up -v
+	bin/goose -dir ${MIGRATION_DIR} postgres ${MIGRATION_DSN} up -v
 
 migration-down:
 	goose -dir ${MIGRATION_DIR} postgres ${MIGRATION_DSN} down -v

@@ -2,6 +2,9 @@ version: '3.8'
 
 services:
   investing:
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
     environment:
       - APP_DB_HOST=pg_investing
       - APP_DB_PORT=5432

@@ -21,6 +21,6 @@ migration-up:
 	bin/goose -dir ${MIGRATION_DIR} postgres ${MIGRATION_DSN} up -v
 
 migration-down:
-	goose -dir ${MIGRATION_DIR} postgres ${MIGRATION_DSN} down -v
+	bin/goose -dir ${MIGRATION_DIR} postgres ${MIGRATION_DSN} down -v
 
 

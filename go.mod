@@ -8,6 +8,7 @@ require (
 	github.com/caarlos0/env/v11 v11.3.1
 	github.com/gorilla/mux v1.8.1
 	github.com/jackc/pgx/v5 v5.7.4
+	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.33.0
 	github.com/stretchr/testify v1.10.0
 	go.uber.org/mock v0.5.0
@@ -34,7 +35,7 @@ require (
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.0.0-rc.5 // indirect
-	github.com/russianinvestments/invest-api-go-sdk v1.28.1
+	github.com/russianinvestments/invest-api-go-sdk v1.40.1
 	github.com/shopspring/decimal v1.3.1 // indirect
 	golang.org/x/net v0.21.0
 	golang.org/x/oauth2 v0.11.0 // indirect

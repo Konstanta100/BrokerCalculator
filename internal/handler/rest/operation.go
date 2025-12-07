@@ -99,3 +99,30 @@ func (h *OperationHandler) LoadOperations(w http.ResponseWriter, r *http.Request
 		sendErrorResponse(w, fmt.Sprintf("Error getting operations: %f", err), http.StatusInternalServerError)
 	}
 }
+
+func (h *OperationHandler) DeleteLoadOperations(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	var (
+		accountID string
+		err       error
+	)
+
+	accountID = r.URL.Query().Get("accountID")
+	if accountID == "" {
+		sendErrorResponse(w, "missing user id", http.StatusBadRequest)
+		return
+	}
+
+	countDeleted, err := h.OperationService.DeleteLoadOperationsFromBroker(ctx, accountID)
+	if err != nil {
+		sendErrorResponse(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode(map[string]int64{"count": countDeleted})
+	if err != nil {
+		sendErrorResponse(w, err.Error(), http.StatusInternalServerError)
+	}
+}

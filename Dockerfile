@@ -2,6 +2,9 @@ ARG GO_VERSION=1.23.4
 
 FROM golang:${GO_VERSION}-alpine as builder
 
+# Установите git и другие необходимые инструменты
+RUN apk add --no-cache git
+
 WORKDIR /app
 
 COPY go.mod go.sum ./

@@ -70,6 +70,9 @@ func (b *Builder) registerHandlers(db *pgxpool.Pool) error {
 	router.HandleFunc("/broker/calculator", b.brokerCalculator).Methods(http.MethodGet)
 	apiRoute.HandleFunc("/operations/commission", operationHandler.CommissionFromBroker).Methods(http.MethodPost)
 	apiRoute.HandleFunc("/operations/load", operationHandler.LoadOperations).Methods(http.MethodPost)
+	apiRoute.HandleFunc(
+		"/operations/deleteLoadOperations",
+		operationHandler.DeleteLoadOperations).Methods(http.MethodDelete)
 	apiRoute.HandleFunc("/accounts/load", accountHandler.LoadAccounts).Methods(http.MethodGet)
 	apiRoute.HandleFunc("/accounts", accountHandler.Accounts).Methods(http.MethodGet)
 	apiRoute.HandleFunc("/account", accountHandler.Account).Methods(http.MethodGet)
@@ -79,10 +82,11 @@ func (b *Builder) registerHandlers(db *pgxpool.Pool) error {
 	return nil
 }
 
-func (b *Builder) homeHandler(w http.ResponseWriter, r *http.Request) {
+func (b *Builder) homeHandler(w http.ResponseWriter, _ *http.Request) {
 	b.renderTemplate(w, "main.html", nil)
 }
-func (b *Builder) brokerCalculator(w http.ResponseWriter, r *http.Request) {
+
+func (b *Builder) brokerCalculator(w http.ResponseWriter, _ *http.Request) {
 	b.renderTemplate(w, "broker_calculator.html", nil)
 }
 

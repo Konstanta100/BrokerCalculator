@@ -42,7 +42,7 @@ POST /operations/commission
 ## Тестирование
 Написаны юнит-тесты на core логику приложения. Плюсом будут тесты на транспортном уровне и на уровне хранения.
 
-## Разворачивание не сервере
+## Разворачивание на сервере
 1) sudo apt install -y apt-transport-https ca-certificates curl software-properties-common
 2) curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
 3) echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null

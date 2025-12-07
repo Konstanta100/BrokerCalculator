@@ -6,7 +6,7 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
         }
@@ -21,7 +21,7 @@
             font-weight: bold;
         }
 
-        input, button {
+        input, button, select {
             padding: 8px;
             width: 100%;
             box-sizing: border-box;
@@ -42,6 +42,15 @@
             background-color: #45a049;
         }
 
+        button.secondary {
+            background-color: #007bff;
+            margin-left: 10px;
+        }
+
+        button.secondary:hover {
+            background-color: #0056b3;
+        }
+
         #result {
             margin-top: 30px;
             padding: 15px;
@@ -52,6 +61,11 @@
 
         .error {
             color: red;
+            margin-top: 10px;
+        }
+
+        .success {
+            color: green;
             margin-top: 10px;
         }
 
@@ -72,23 +86,28 @@
             font-weight: bold;
         }
 
-        .commissions-table {
+        .commissions-table, .accounts-table {
             width: 100%;
             border-collapse: collapse;
+        }
+
+        .section {
             margin-top: 20px;
         }
 
-        .commissions-table th, .commissions-table td {
+        .commissions-table th, .commissions-table td,
+        .accounts-table th, .accounts-table td {
             border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
         }
 
-        .commissions-table th {
+        .commissions-table th, .accounts-table th {
             background-color: #f2f2f2;
         }
 
-        .commissions-table tr:nth-child(even) {
+        .commissions-table tr:nth-child(even),
+        .accounts-table tr:nth-child(even) {
             background-color: #f9f9f9;
         }
 
@@ -106,18 +125,269 @@
         .negative {
             color: #d32f2f;
         }
+
+        .account-status-active {
+            color: green;
+            font-weight: bold;
+        }
+
+        .account-status-closed {
+            color: red;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+        }
+
+        .section h2 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .account-row {
+            cursor: pointer;
+        }
+
+        .account-row:hover {
+            background-color: #f0f8ff !important;
+        }
+
+        .selected-account {
+            background-color: #e6f7ff !important;
+            border-left: 4px solid #007bff;
+        }
+
+        .user-info {
+            background-color: #e8f5e8;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .user-details {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 10px 20px;
+            margin-top: 15px;
+        }
+
+        .user-label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        .user-value {
+            color: #333;
+        }
+
+        .user-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .delete-operations-account-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .delete-operations-account-btn:hover {
+            background-color: #c82333;
+            transform: translateY(-1px);
+        }
+
+        .delete-operations-account-btn:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+            opacity: 0.7;
+            transform: none;
+        }
+
+        .delete-operations-account-btn.deleting {
+            background-color: #ffc107;
+            color: #212529;
+        }
+
+        .delete-operations-account-btn.success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+        }
+
+        .spinner.large {
+            width: 30px;
+            height: 30px;
+            border-width: 3px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .notification {
+            padding: 12px 20px;
+            border-radius: 6px;
+            color: white;
+            min-width: 300px;
+            max-width: 400px;
+            animation: slideIn 0.3s ease-out;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notification-success {
+            background-color: #28a745;
+            border-left: 4px solid #1e7e34;
+        }
+
+        .notification-error {
+            background-color: #dc3545;
+            border-left: 4px solid #bd2130;
+        }
+
+        .notification-info {
+            background-color: #17a2b8;
+            border-left: 4px solid #117a8b;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 0;
+            margin-left: 10px;
+        }
+
+        .account-status-active {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .account-status-closed {
+            color: #6c757d;
+        }
+
+        .operations-count {
+            display: inline-block;
+            background: #6c757d;
+            color: white;
+            border-radius: 10px;
+            padding: 2px 8px;
+            font-size: 12px;
+            margin-left: 5px;
+        }
     </style>
 </head>
 <body>
 <h1>Калькулятор комиссий брокера</h1>
-<nav>
-    <a href="/">Главная</a>
-</nav>
+<!-- Скрытое поле с GUID пользователя -->
+<input type="hidden" id="userId" value="6c91020b-6c87-43bf-8942-17e7b33585d5">
 
-<div class="form-container">
+<!-- Информация о пользователе -->
+<div class="user-info">
+    <h3>Информация о пользователе</h3>
+    <div id="userLoading" class="loading">Загрузка информации о пользователе...</div>
+    <div id="userError" class="error"></div>
+    <div id="userContent" style="display: none;">
+        <div class="user-details">
+            <span class="user-label">ID:</span>
+            <span class="user-value" id="userDisplayId">-</span>
+
+            <span class="user-label">ФИО:</span>
+            <span class="user-value user-name" id="userDisplayName">-</span>
+
+            <span class="user-label">Email:</span>
+            <span class="user-value" id="userDisplayEmail">-</span>
+        </div>
+    </div>
+</div>
+
+<!-- Таблица со списком аккаунтов -->
+<div id="accountsResult" style="display: none;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="margin: 0;">Список счётов брокера</h3>
+        <button id="getAccountsBtn" class="secondary" hidden>Обновить</button>
+    </div>
+    <div id="accountsLoading" class="loading">Загрузка списка аккаунтов...</div>
+    <div id="accountsError" class="error"></div>
+    <div id="accountsSuccess" class="success"></div>
+
+    <table class="accounts-table">
+        <thead>
+        <tr>
+            <th>ID счёта</th>
+            <th>Название</th>
+            <th>Статус</th>
+            <th>Уровень доступа</th>
+            <th>Дата открытия</th>
+            <th>Дата закрытия</th>
+            <th>Действие</th>
+            <th>Операции</th>
+        </tr>
+        </thead>
+        <tbody id="accounts-body">
+        </tbody>
+    </table>
+</div>
+
+<!-- Секция калькулятора комиссий -->
+<div class="section">
+    <h2>Расчёт комиссий</h2>
     <div class="form-group">
         <label for="accountId">Номер счёта:</label>
         <input type="text" id="accountId" placeholder="Например: 2158466292" required>
+        <small>Введите номер счёта вручную или выберите из списка выше</small>
     </div>
 
     <div class="form-group">
@@ -133,8 +403,11 @@
     <button id="calculateBtn">Рассчитать комиссию</button>
     <div id="loading" class="loading">Идёт расчёт комиссий...</div>
     <div id="error" class="error"></div>
+
+    <button id="downloadOperationBtn">Скачать операции по аккаунту</button>
 </div>
 
+<!-- Результаты расчёта комиссий -->
 <div id="result">
     <div id="summary" class="summary"></div>
     <div id="details">
@@ -154,6 +427,310 @@
 </div>
 
 <script>
+    // Функция для получения GUID пользователя
+    function getCurrentUserId() {
+        // Вариант 1: Из скрытого поля
+        const hiddenField = document.getElementById('userId');
+        if (hiddenField && hiddenField.value) {
+            return hiddenField.value;
+        }
+
+        // Вариант 2: Из JavaScript переменной (если она определена)
+        if (typeof currentUserGuid !== 'undefined') {
+            return currentUserGuid;
+        }
+
+        // Вариант 3: Из data-атрибута body
+        const bodyGuid = document.body.getAttribute('data-user-id');
+        if (bodyGuid) {
+            return bodyGuid;
+        }
+
+        console.error('GUID пользователя не найден');
+        return null;
+    }
+
+    // Функция для загрузки информации о пользователе
+    function loadUserInfo() {
+        const userId = getCurrentUserId();
+        if (!userId) {
+            document.getElementById('userError').textContent = 'Ошибка: не удалось определить идентификатор пользователя';
+            return;
+        }
+
+        const loadingElement = document.getElementById('userLoading');
+        const errorElement = document.getElementById('userError');
+        const contentElement = document.getElementById('userContent');
+
+        // Показываем индикатор загрузки
+        loadingElement.style.display = 'block';
+        errorElement.textContent = '';
+        contentElement.style.display = 'none';
+
+        // Отправляем запрос к API для получения информации о пользователе
+        fetch(`/api/user?id=${encodeURIComponent(userId)}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Ошибка сервера: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(userData => {
+                // Скрываем индикатор загрузки
+                loadingElement.style.display = 'none';
+
+                // Отображаем информацию о пользователе
+                displayUserInfo(userData);
+            })
+            .catch(error => {
+                loadingElement.style.display = 'none';
+                errorElement.textContent = 'Ошибка при загрузке информации о пользователе: ' + error.message;
+                console.error('Error loading user info:', error);
+            });
+    }
+
+    // Функция для отображения информации о пользователе
+    function displayUserInfo(userData) {
+        const contentElement = document.getElementById('userContent');
+        const idElement = document.getElementById('userDisplayId');
+        const nameElement = document.getElementById('userDisplayName');
+        const emailElement = document.getElementById('userDisplayEmail');
+
+        // Заполняем данные
+        idElement.title = userData.id
+        idElement.textContent = userData.id
+        nameElement.textContent = userData.name || 'Не указано';
+        emailElement.textContent = userData.email || 'Не указан';
+
+        // Показываем контент
+        contentElement.style.display = 'block';
+    }
+
+    // Функция для получения списка аккаунтов
+    document.getElementById('getAccountsBtn').addEventListener('click', function () {
+        const userId = getCurrentUserId();
+        if (!userId) {
+            alert('Ошибка: не удалось определить идентификатор пользователя');
+            return;
+        }
+
+        const errorElement = document.getElementById('accountsError');
+        const successElement = document.getElementById('accountsSuccess');
+        const loadingElement = document.getElementById('accountsLoading');
+        const accountsResultElement = document.getElementById('accountsResult');
+
+        // Скрываем предыдущие результаты и ошибки
+        errorElement.textContent = '';
+        successElement.textContent = '';
+        accountsResultElement.style.display = 'none';
+
+        // Показываем индикатор загрузки
+        loadingElement.style.display = 'block';
+
+        // Отправляем запрос к API для получения аккаунтов
+        fetch(`/api/accounts?user_id=${encodeURIComponent(userId)}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Ошибка сервера: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(accounts => {
+                // Скрываем индикатор загрузки
+                loadingElement.style.display = 'none';
+
+                // Обрабатываем и отображаем данные
+                displayAccounts(accounts, userId);
+            })
+            .catch(error => {
+                loadingElement.style.display = 'none';
+                errorElement.textContent = 'Ошибка при запросе: ' + error.message;
+                console.error('Error:', error);
+            });
+    });
+
+    // Функция для отображения списка аккаунтов
+    function displayAccounts(accounts, userId) {
+        const accountsBody = document.getElementById('accounts-body');
+        const accountsResultElement = document.getElementById('accountsResult');
+        const successElement = document.getElementById('accountsSuccess');
+
+        // Очищаем предыдущие данные
+        accountsBody.innerHTML = '';
+
+        if (!accounts || accounts.length === 0) {
+            successElement.textContent = 'Аккаунты не найдены для данного пользователя';
+            return;
+        }
+
+        // Заполняем таблицу аккаунтами
+        accounts.forEach(account => {
+            const row = document.createElement('tr');
+            row.className = 'account-row';
+            row.dataset.accountId = account.id;
+
+            // Форматируем даты
+            const openedDate = account.opened_date ? new Date(account.opened_date).toLocaleDateString('ru-RU') : '-';
+            const closedDate = account.closed_date ? new Date(account.closed_date).toLocaleDateString('ru-RU') : '-';
+
+            // Определяем класс для статуса
+            const statusClass = account.status === 'ACCOUNT_STATUS_OPEN' ? 'account-status-active' : 'account-status-closed';
+
+            // Определяем текст статуса
+            let statusText = account.status || '-';
+            if (account.status === 'ACCOUNT_STATUS_OPEN') {
+                statusText = 'Открыт';
+            } else if (account.status === 'ACCOUNT_STATUS_CLOSED') {
+                statusText = 'Закрыт';
+            }
+
+            row.innerHTML = `
+                <td><strong>${account.id}</strong></td>
+                <td>${account.name || '-'}</td>
+                <td class="${statusClass}">${statusText}</td>
+                <td>${account.access_level || '-'}</td>
+                <td>${openedDate}</td>
+                <td>${closedDate}</td>
+                <td>
+                    <button class="select-account-btn" data-account-id="${account.id}">
+                        Выбрать
+                    </button>
+                </td>
+                <td>
+                    <button class="delete-operations-account-btn"
+                            data-account-id="${account.id}"
+                            title="Удалить все операции этого аккаунта">
+                        🗑️ Удалить операции
+                        <span class="operations-count" id="count-${account.id}">0</span>
+                    </button>
+                </td>
+            `;
+
+            accountsBody.appendChild(row);
+        });
+
+
+        // Добавляем обработчики для кнопок выбора
+        document.querySelectorAll('.select-account-btn').forEach(button => {
+            button.addEventListener('click', function (e) {
+                e.stopPropagation(); // Предотвращаем всплытие события
+
+                const accountId = this.getAttribute('data-account-id');
+
+                // Заполняем поле номера счёта
+                document.getElementById('accountId').value = accountId;
+
+                // Убираем выделение со всех строк
+                document.querySelectorAll('.account-row').forEach(r => {
+                    r.classList.remove('selected-account');
+                });
+
+                // Добавляем выделение текущей строке
+                const row = this.closest('tr');
+                row.classList.add('selected-account');
+
+                // Прокручиваем к калькулятору
+                document.querySelector('.section h2').scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            });
+        });
+
+        // Добавляем обработчики для кнопки удалить операции
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.delete-operations-account-btn')) {
+                const button = e.target.closest('.delete-operations-account-btn');
+                const accountId = button.dataset.accountId;
+
+                // Проверяем, не выполняется ли уже удаление
+                if (button.classList.contains('deleting')) {
+                    return;
+                }
+
+                // Подтверждение действия
+                if (!confirm(`Вы уверены, что хотите удалить ВСЕ операции для аккаунта "${accountId}"?\n\nЭто действие нельзя отменить.`)) {
+                    return;
+                }
+
+                // Показываем индикатор загрузки
+                button.classList.add('deleting');
+                button.innerHTML = `<span class="spinner"></span> Удаление...`;
+                button.disabled = true;
+
+                // Показываем глобальный индикатор
+                loadingIndicator.style.display = 'flex';
+
+                // Отправляем запрос
+                fetch(`/api/operations/deleteLoadOperations?accountID=${encodeURIComponent(accountId)}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                    }
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json().then(err => {
+                                throw new Error(err.error || `Ошибка: ${response.status}`);
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Успешное удаление
+                        button.classList.remove('deleting');
+                        button.classList.add('success');
+                        button.innerHTML = `✓ Удалено ${data.count}`;
+
+                        // Обновляем счетчик
+                        const countSpan = button.querySelector('.operations-count');
+                        if (countSpan) {
+                            countSpan.textContent = data.count;
+                        }
+
+                        // Показываем уведомление
+                        showNotification(`Успешно удалено ${data.count} операций для аккаунта ${accountId}`, 'success');
+
+                        // Через 3 секунды возвращаем кнопку в исходное состояние
+                        setTimeout(() => {
+                            button.classList.remove('success');
+                            button.innerHTML = `🗑️ Удалить операции <span class="operations-count">${data.count}</span>`;
+                            button.disabled = false;
+                        }, 3000);
+                    })
+                    .catch(error => {
+                        // Ошибка
+                        button.classList.remove('deleting');
+                        button.disabled = false;
+                        button.innerHTML = `🗑️ Удалить операции <span class="operations-count">0</span>`;
+
+                        showNotification(`Ошибка при удалении: ${error.message}`, 'error');
+                        console.error('Ошибка удаления:', error);
+                    })
+                    .finally(() => {
+                        // Скрываем глобальный индикатор
+                        loadingIndicator.style.display = 'none';
+                    });
+            }
+        });
+
+
+
+        // Также добавляем обработчик клика на всю строку
+        document.querySelectorAll('.account-row').forEach(row => {
+            row.addEventListener('click', function () {
+                const accountId = this.querySelector('td:first-child strong').textContent;
+                const button = this.querySelector('.select-account-btn');
+                button.click(); // Эмулируем клик по кнопке
+            });
+        });
+
+        // Показываем результаты
+        accountsResultElement.style.display = 'block';
+    }
+
+    // Функция для расчёта комиссий
     document.getElementById('calculateBtn').addEventListener('click', function () {
         const accountId = document.getElementById('accountId').value;
         const dateFrom = document.getElementById('dateFrom').value;
@@ -215,6 +792,51 @@
             });
     });
 
+    document.getElementById('downloadOperationBtn').addEventListener('click', function () {
+        const accountId = document.getElementById('accountId').value;
+        const errorElement = document.getElementById('error');
+        const loadingElement = document.getElementById('loading');
+        const resultElement = document.getElementById('result');
+
+        // Скрываем предыдущие результаты и ошибки
+        errorElement.textContent = '';
+        resultElement.style.display = 'none';
+
+        // Валидация
+        if (!accountId) {
+            errorElement.textContent = 'Все поля обязательны для заполнения';
+            return;
+        }
+
+        // Показываем индикатор загрузки
+        loadingElement.style.display = 'block';
+
+        // Формируем данные для запроса
+        const requestData = {
+            accountId: accountId,
+        };
+
+        // Отправляем запрос к API
+        fetch('/api/operations/load', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestData)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Ошибка сервера: ' + response.status);
+                }
+                return response.json();
+            })
+            .catch(error => {
+                loadingElement.style.display = 'none';
+                errorElement.textContent = 'Ошибка при запросе: ' + error.message;
+                console.error('Error:', error);
+            });
+    });
+
     function displayResults(data, accountId, dateFrom, dateTo) {
         const resultElement = document.getElementById('result');
         const summaryElement = document.getElementById('summary');
@@ -228,6 +850,12 @@
             if (value === undefined || value === null) return '-';
             const formattedValue = Math.abs(value).toFixed(2);
             return `<span class="negative">${formattedValue} ${currency}</span>`;
+        };
+
+        const format = (value) => {
+            if (value === undefined || value === null) return '-';
+            const formattedValue = Math.abs(value).toFixed(2);
+            return `<span class="negative">${formattedValue}</span>`;
         };
 
         // Заполняем сводную информацию
@@ -261,8 +889,8 @@
 
                 row.innerHTML = `
                         <td>${date}</td>
-                        <td class="currency">${commission.rub !== undefined ? formatCurrency(commission.rub, 'RUB') : '-'}</td>
-                        <td class="currency">${commission['pt.'] !== undefined ? formatCurrency(commission['pt.'], 'PT') : '-'}</td>
+                        <td class="currency">${commission.rub !== undefined ? format(commission.rub, 'RUB') : '-'}</td>
+                        <td class="currency">${commission['pt.'] !== undefined ? format(commission['pt.'], 'PT') : '-'}</td>
                     `;
 
                 commissionsBody.appendChild(row);
@@ -271,7 +899,229 @@
 
         // Показываем результаты
         resultElement.style.display = 'block';
+
+        // Прокручиваем к результатам
+        resultElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+        });
     }
+
+    // Устанавливаем даты по умолчанию (последние 365 дней)
+    window.addEventListener('load', function () {
+        const today = new Date();
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(today.getDate() - 365);
+
+        document.getElementById('dateTo').value = today.toISOString().split('T')[0];
+        document.getElementById('dateFrom').value = thirtyDaysAgo.toISOString().split('T')[0];
+
+        // Загружаем информацию о пользователе при загрузке страницы
+        loadUserInfo();
+
+        // Автоматически загружаем аккаунты при загрузке страницы (опционально)
+        setTimeout(() => {
+            document.getElementById('getAccountsBtn').click();
+        }, 1000);
+    });
+
+
+    const loadingIndicator = document.createElement('div');
+    loadingIndicator.id = 'global-loading';
+    loadingIndicator.innerHTML = `
+    <div class="spinner"></div>
+    <span>Удаление операций...</span>
+`;
+    loadingIndicator.style.cssText = `
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    gap: 10px;
+`;
+
+    const notificationContainer = document.createElement('div');
+    notificationContainer.id = 'notification-container';
+    notificationContainer.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9998;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+`;
+
+    document.body.appendChild(loadingIndicator);
+    document.body.appendChild(notificationContainer);
+
+    // Создаем стили
+    const style = document.createElement('style');
+    style.textContent = `
+    .delete-operations-account-btn {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .delete-operations-account-btn:hover {
+        background-color: #c82333;
+        transform: translateY(-1px);
+    }
+
+    .delete-operations-account-btn:disabled {
+        background-color: #6c757d;
+        cursor: not-allowed;
+        opacity: 0.7;
+        transform: none;
+    }
+
+    .delete-operations-account-btn.deleting {
+        background-color: #ffc107;
+        color: #212529;
+    }
+
+    .delete-operations-account-btn.success {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .spinner {
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(255,255,255,0.3);
+        border-radius: 50%;
+        border-top-color: white;
+        animation: spin 1s linear infinite;
+    }
+
+    .spinner.large {
+        width: 30px;
+        height: 30px;
+        border-width: 3px;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .notification {
+        padding: 12px 20px;
+        border-radius: 6px;
+        color: white;
+        min-width: 300px;
+        max-width: 400px;
+        animation: slideIn 0.3s ease-out;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .notification-success {
+        background-color: #28a745;
+        border-left: 4px solid #1e7e34;
+    }
+
+    .notification-error {
+        background-color: #dc3545;
+        border-left: 4px solid #bd2130;
+    }
+
+    .notification-info {
+        background-color: #17a2b8;
+        border-left: 4px solid #117a8b;
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes fadeOut {
+        from { opacity: 1; }
+        to { opacity: 0; }
+    }
+
+    .notification-close {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 18px;
+        cursor: pointer;
+        padding: 0;
+        margin-left: 10px;
+    }
+
+    .account-status-active {
+        color: #28a745;
+        font-weight: bold;
+    }
+
+    .account-status-closed {
+        color: #6c757d;
+    }
+
+    .operations-count {
+        display: inline-block;
+        background: #6c757d;
+        color: white;
+        border-radius: 10px;
+        padding: 2px 8px;
+        font-size: 12px;
+        margin-left: 5px;
+    }
+`;
+    document.head.appendChild(style);
+
+    // Функция для показа уведомлений
+    function showNotification(message, type = 'info', duration = 3000) {
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.innerHTML = `
+        <span>${message}</span>
+        <button class="notification-close">&times;</button>
+    `;
+
+        const closeBtn = notification.querySelector('.notification-close');
+        closeBtn.addEventListener('click', () => {
+            notification.style.animation = 'fadeOut 0.3s ease-out';
+            setTimeout(() => notification.remove(), 300);
+        });
+
+        notificationContainer.appendChild(notification);
+
+        if (duration > 0) {
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.style.animation = 'fadeOut 0.3s ease-out';
+                    setTimeout(() => notification.remove(), 300);
+                }
+            }, duration);
+        }
+    }
+
 </script>
 </body>
 </html>

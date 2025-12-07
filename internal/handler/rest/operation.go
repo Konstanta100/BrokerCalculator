@@ -121,10 +121,7 @@ func (h *OperationHandler) DeleteLoadOperations(w http.ResponseWriter, r *http.R
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
-	err = json.NewEncoder(w).Encode(map[string]int64{
-		"count": countDeleted,
-	})
-
+	err = json.NewEncoder(w).Encode(map[string]int64{"count": countDeleted})
 	if err != nil {
 		sendErrorResponse(w, err.Error(), http.StatusInternalServerError)
 	}

@@ -61,3 +61,5 @@ INSERT INTO investing.operations (
     account_id
 ) VALUES ($1,$2,$3,$4, $5,  $6, $7, $8);
 
+-- name: DeleteOperationsByAccountID :execrows
+DELETE FROM investing.operations WHERE account_id = $1;

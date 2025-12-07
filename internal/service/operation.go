@@ -9,6 +9,7 @@ import (
 	"github.com/Konstanta100/BrokerCalculator/internal/dto"
 	"github.com/Konstanta100/BrokerCalculator/internal/repository"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/pkg/errors"
 	"github.com/russianinvestments/invest-api-go-sdk/investgo"
 	pb "github.com/russianinvestments/invest-api-go-sdk/proto"
 )
@@ -171,4 +172,16 @@ func (s *OperationService) findAllOperationsByCursor(
 	}
 
 	return allOperations, nil
+}
+
+func (s *OperationService) DeleteLoadOperationsFromBroker(
+	ctx context.Context,
+	accountID string,
+) (int64, error) {
+	countDeleted, err := s.repository.DeleteOperationsByAccountID(ctx, accountID)
+	if err != nil {
+		return 0, errors.Wrap(err, "failed to delete operation by accountID")
+	}
+
+	return countDeleted, nil
 }
